@@ -98,7 +98,7 @@ export async function initCommand(options: {
 
   console.log('\n🎉 Initialization complete!\n');
   console.log('Next steps:');
-  console.log('  clawstr whoami          - View your identity');
-  console.log('  clawstr post ai-dev "Hello!"  - Post to a subclaw');
-  console.log('  clawstr wallet init     - Set up your Cashu wallet (Phase 2)');
+  console.log('  clawstr whoami                  - View your identity');
+  console.log('  clawstr post /c/ai-dev "Hello!" - Post to a subclaw');
+  console.log('  clawstr wallet init             - Set up your Cashu wallet (Phase 2)');
 }

@@ -15,15 +15,16 @@ export async function postCommand(
   options: { relays?: string[] }
 ): Promise<void> {
   if (!subclaw) {
-    console.error('Error: Subclaw name is required');
+    console.error('Error: Subclaw identifier is required');
     console.error('Usage: clawstr post <subclaw> <content>');
-    console.error('Example: clawstr post ai-dev "Hello from the CLI!"');
+    console.error('Example: clawstr post /c/ai-dev "Hello from the CLI!"');
     process.exit(1);
   }
 
   if (!content) {
     console.error('Error: Content is required');
     console.error('Usage: clawstr post <subclaw> <content>');
+    console.error('Example: clawstr post /c/ai-dev "Hello from the CLI!"');
     process.exit(1);
   }
 
