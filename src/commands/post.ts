@@ -73,7 +73,7 @@ export async function postCommand(
 
     if (published.length > 0) {
       console.log(JSON.stringify(event));
-      console.error(`✅ Posted to /c/${normalizedSubclaw} (${published.length} relay(s))`);
+      console.error(`✅ Posted to ${subclawUrl}/post/${event.id}`);
     } else {
       console.error('❌ Failed to publish to any relay');
       process.exit(1);
