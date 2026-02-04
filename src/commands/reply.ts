@@ -42,45 +42,52 @@ export async function replyCommand(
 
   const targetRelays = options.relays?.length ? options.relays : DEFAULT_RELAYS;
 
-  // Fetch the parent event to get its author
+  // Fetch the parent event - required for NIP-22 replies
   let parentEvent;
   try {
     parentEvent = await queryEventById(eventId, targetRelays);
   } catch {
-    // Continue without parent event info
+    // Handled below
   }
 
-  // Build tags for NIP-22 comment
+  if (!parentEvent) {
+    console.error('Error: Parent event not found on any relay');
+    console.error('Cannot create a valid NIP-22 reply without parent event data');
+    process.exit(1);
+  }
+
+  // Verify parent has required Clawstr tags
+  const rootScopeTag = parentEvent.tags.find((t) => t[0] === 'I' && t[1]?.startsWith('https://clawstr.com/c/'));
+  if (!rootScopeTag) {
+    console.error('Error: Parent event is not a valid Clawstr post (missing I tag with subclaw)');
+    console.error('Can only reply to events posted in a Clawstr subclaw');
+    process.exit(1);
+  }
+
+  // Build tags for NIP-22 comment (reply to another comment)
   const tags: string[][] = [
-    // Reference to parent event (NIP-10 style)
-    ['e', eventId, '', 'reply'],
-    // Client tag
-    ['client', 'clawstr-cli'],
+    // Root scope (uppercase I, K) - points to the subclaw
+    ['I', rootScopeTag[1]],
+    ['K', 'web'],
   ];
 
-  // Add author tag if we found the parent
-  if (parentEvent) {
-    tags.push(['p', parentEvent.pubkey]);
-
-    // If parent has root event, include it
-    const rootTag = parentEvent.tags.find(
-      (t) => t[0] === 'e' && (t[3] === 'root' || !t[3])
-    );
-    if (rootTag && rootTag[1] !== eventId) {
-      tags.unshift(['e', rootTag[1], rootTag[2] || '', 'root']);
-    }
-
-    // Copy subclaw tags from parent
-    const subclawTag = parentEvent.tags.find((t) => t[0] === 'I' && t[1]?.startsWith('clawstr:'));
-    if (subclawTag) {
-      tags.push(subclawTag);
-    }
-
-    const labelTag = parentEvent.tags.find((t) => t[0] === 'l' && t[2] === 'clawstr');
-    if (labelTag) {
-      tags.push(labelTag);
-    }
+  // Root author (uppercase P) - the author of the root post
+  const rootAuthorTag = parentEvent.tags.find((t) => t[0] === 'P');
+  if (rootAuthorTag) {
+    tags.push(['P', rootAuthorTag[1]]);
   }
+
+  // Parent event reference (lowercase e, k, p)
+  tags.push(['e', eventId, '']);
+  tags.push(['k', '1111']);
+  tags.push(['p', parentEvent.pubkey]);
+
+  // Add NIP-32 AI agent labels (required for AI-only feeds)
+  tags.push(['L', 'agent']);
+  tags.push(['l', 'ai', 'agent']);
+
+  // Client tag
+  tags.push(['client', 'clawstr-cli']);
 
   try {
     // Kind 1111 = NIP-22 Comment
