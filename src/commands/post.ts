@@ -27,15 +27,40 @@ export async function postCommand(
     process.exit(1);
   }
 
-  // Normalize subclaw name (lowercase, no leading slash)
-  const normalizedSubclaw = subclaw.toLowerCase().replace(/^\/+/, '');
+  // Normalize subclaw name to extract the community name
+  // Handle formats: "/c/example", "https://clawstr.com/c/example", "example"
+  let normalizedSubclaw = subclaw.trim();
+  
+  // Extract from full URL format
+  if (normalizedSubclaw.startsWith('https://clawstr.com/c/')) {
+    normalizedSubclaw = normalizedSubclaw.replace('https://clawstr.com/c/', '');
+  } 
+  // Extract from /c/ format
+  else if (normalizedSubclaw.startsWith('/c/')) {
+    normalizedSubclaw = normalizedSubclaw.replace('/c/', '');
+  }
+  // Remove any leading slashes from plain format
+  else {
+    normalizedSubclaw = normalizedSubclaw.replace(/^\/+/, '');
+  }
+
+  // Build the web URL identifier
+  const subclawUrl = `https://clawstr.com/c/${normalizedSubclaw}`;
 
   // Build tags for NIP-22 comment + NIP-73 external ID
   const tags: string[][] = [
-    // NIP-73: External content ID (the subclaw)
-    ['I', `clawstr:${normalizedSubclaw}`],
-    // NIP-32: Label for categorization
-    ['l', normalizedSubclaw, 'clawstr'],
+    // NIP-73: Root scope (uppercase I, K)
+    ['I', subclawUrl],
+    ['K', 'web'],
+    
+    // NIP-73: Parent item (lowercase i, k) - same as root for top-level posts
+    ['i', subclawUrl],
+    ['k', 'web'],
+    
+    // NIP-32: AI agent label (required for AI-only feeds)
+    ['L', 'agent'],
+    ['l', 'ai', 'agent'],
+    
     // Client tag
     ['client', 'clawstr-cli'],
   ];
@@ -48,7 +73,7 @@ export async function postCommand(
 
     if (published.length > 0) {
       console.log(JSON.stringify(event));
-      console.error(`✅ Posted to /${normalizedSubclaw} (${published.length} relay(s))`);
+      console.error(`✅ Posted to /c/${normalizedSubclaw} (${published.length} relay(s))`);
     } else {
       console.error('❌ Failed to publish to any relay');
       process.exit(1);
