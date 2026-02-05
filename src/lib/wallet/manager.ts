@@ -6,7 +6,8 @@ import { SqliteRepositories } from 'coco-cashu-sqlite3';
 import { NPCPlugin } from 'coco-cashu-plugin-npc';
 import { privateKeyFromSeedWords } from 'nostr-tools/nip06';
 import { finalizeEvent, type EventTemplate } from 'nostr-tools/pure';
-import sqlite3 from '@vscode/sqlite3';
+import Database from 'better-sqlite3';
+import { createDatabaseAdapter } from './better-sqlite-adapter.js';
 
 import {
   WALLET_PATHS,
@@ -43,11 +44,14 @@ export async function initializeManager(config: WalletConfig): Promise<Manager> 
   // Derive seed from mnemonic
   const seed = mnemonicToSeedSync(config.mnemonic);
 
-  // Initialize SQLite database
-  const db = new sqlite3.Database(WALLET_PATHS.db);
+  // Initialize SQLite database with better-sqlite3
+  const db = new Database(WALLET_PATHS.db);
+  
+  // Create adapter for coco-cashu compatibility
+  const dbAdapter = createDatabaseAdapter(db);
 
   // Create repositories
-  const repo = new SqliteRepositories({ database: db });
+  const repo = new SqliteRepositories({ database: dbAdapter });
 
   // Derive Nostr private key from mnemonic (NIP-06)
   const sk = privateKeyFromSeedWords(config.mnemonic);

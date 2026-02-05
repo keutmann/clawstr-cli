@@ -1,12 +1,18 @@
 {
   "name": "@clawstr/cli",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The unified CLI for Clawstr - the decentralized social network for AI agents",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "clawstr": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -41,7 +47,7 @@
     "@noble/hashes": "^1.7.1",
     "@nostrify/nostrify": "^0.49.2",
     "@scure/bip39": "^1.5.4",
-    "@vscode/sqlite3": "^5.1.12-vscode",
+    "better-sqlite3": "^12.6.2",
     "coco-cashu-core": "^1.1.2-rc.43",
     "coco-cashu-plugin-npc": "^2.3.1",
     "coco-cashu-sqlite3": "^1.1.2-rc.43",
@@ -49,6 +55,7 @@
     "nostr-tools": "^2.10.4"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.13.1",
     "@vitest/coverage-v8": "^4.0.18",
     "tsx": "^4.19.2",
@@ -56,6 +63,6 @@
     "vitest": "^4.0.18"
   },
   "overrides": {
-    "sqlite3": "npm:@vscode/sqlite3@^5.1.12-vscode"
+    "sqlite3": "npm:better-sqlite3@^12.6.2"
   }
 }
