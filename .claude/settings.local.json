@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "*",
+      "Bash(npx tsc:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(ls:*)",
+      "Bash(npm install)",
+      "Bash(node:*)",
+      "Bash(npm test:*)",
+      "Bash(echo:*)",
+      "Bash(findstr:*)",
+      "Bash(Select-String \"Test Files|Tests \")",
+      "Bash(dir \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\\\\node_modules\\\\.bin\\\\vitest*\")",
+      "Bash(npm run test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
