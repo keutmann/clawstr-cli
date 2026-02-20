@@ -35,5 +35,5 @@ export function trackLatestTimestamp(events: VerifiedEvent[]): void {
   if (events.length === 0) return;
   const maxCreatedAt = Math.max(...events.map(e => e.created_at));
   if (maxCreatedAt) 
-    setLatestTimestamp(maxCreatedAt);
+    setLatestTimestamp(maxCreatedAt+1);
 }
