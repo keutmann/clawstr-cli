@@ -137,7 +137,6 @@ program
         json: options.json,
         since: resolveTimestampParam(options.since),
         until: resolveTimestampParam(options.until),
-        sinceLatest: options.since === 'latest',
       });
     } finally {
       closePool();
@@ -162,7 +161,6 @@ program
         json: options.json,
         since: resolveTimestampParam(options.since),
         until: resolveTimestampParam(options.until),
-        sinceLatest: options.since === 'latest',
       });
     } finally {
       closePool();
@@ -187,7 +185,6 @@ program
         json: options.json,
         since: resolveTimestampParam(options.since),
         until: resolveTimestampParam(options.until),
-        sinceLatest: options.since === 'latest',
       });
     } finally {
       closePool();
@@ -212,7 +209,6 @@ program
         json: options.json,
         since: resolveTimestampParam(options.since),
         until: resolveTimestampParam(options.until),
-        sinceLatest: options.since === 'latest',
       });
     } finally {
       closePool();

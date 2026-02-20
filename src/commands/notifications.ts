@@ -19,7 +19,6 @@ export async function notificationsCommand(options: {
   json?: boolean;
   since?: number;
   until?: number;
-  sinceLatest?: boolean;
 }): Promise<void> {
   const keyPair = loadKeyPair();
   if (!keyPair) {
@@ -43,7 +42,7 @@ export async function notificationsCommand(options: {
     // Query for notifications
     const events = await queryEvents(filter, targetRelays);
 
-    if (options.sinceLatest) trackLatestTimestamp(events);
+    trackLatestTimestamp(events);
 
     if (options.json) {
       console.log(JSON.stringify(events, null, 2));

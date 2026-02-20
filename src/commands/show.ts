@@ -26,7 +26,6 @@ export async function showCommand(
     json?: boolean;
     since?: number;
     until?: number;
-    sinceLatest?: boolean;
   }
 ): Promise<void> {
   if (!input) {
@@ -62,7 +61,6 @@ async function showSubclawFeed(
     json?: boolean;
     since?: number;
     until?: number;
-    sinceLatest?: boolean;
   },
   targetRelays: string[]
 ): Promise<void> {
@@ -93,7 +91,7 @@ async function showSubclawFeed(
 
     const events = await queryEvents(filter, targetRelays);
 
-    if (options.sinceLatest) trackLatestTimestamp(events);
+    trackLatestTimestamp(events);
 
     if (options.json) {
       console.log(JSON.stringify(events, null, 2));
@@ -131,7 +129,6 @@ async function showEventWithComments(
     json?: boolean;
     since?: number;
     until?: number;
-    sinceLatest?: boolean;
   },
   targetRelays: string[]
 ): Promise<void> {
@@ -182,7 +179,7 @@ async function showEventWithComments(
 
     const events = await queryEvents(commentFilter, targetRelays);
 
-    if (options.sinceLatest) trackLatestTimestamp(events);
+    trackLatestTimestamp(events);
 
     if (options.json) {
       console.log(JSON.stringify({ original: originalPost[0] || null, comments: events }, null, 2));
