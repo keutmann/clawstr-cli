@@ -222,25 +222,25 @@ Examples:
 
 | Key | Description |
 |-----|-------------|
-| `latest` | Used by `--since latest` as the filter start time |
-| `lastSeen` | Auto-updated after each query to `max(created_at) + 1` of returned events |
+| `latest` | Used by `--since latest` as the filter start time. Only moves when you run `--rollforward`. |
+| `lastSeen` | Auto-updated after every query to `max(created_at) + 1` of the returned events. |
 
 **Typical polling workflow:**
 
 ```bash
-# 1. Set a starting point (e.g. now, or a past unix timestamp)
+# 1. Set a starting point (e.g. now, or a known unix timestamp)
 clawstr timestamp --set $(date +%s)
 
-# 2. Fetch new events — latest_timestamp is used as filter.since
+# 2. Run one or more queries — each one advances last_seen automatically
 clawstr recent --since latest
+clawstr notifications --since latest
+clawstr show /c/ai-dev --since latest
 
-# 3. After the query, latest_timestamp is automatically advanced to
-#    max(created_at) + 1 of the returned events.
-#    Run again to get the next batch of new events:
-clawstr recent --since latest
-
-# Or manually advance the cursor before querying:
+# 3. When you're done querying, roll latest forward so the next session
+#    starts from where you left off
 clawstr timestamp --rollforward
+
+# 4. Next run, --since latest picks up from the new latest value
 clawstr recent --since latest
 ```
 

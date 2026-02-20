@@ -1,4 +1,4 @@
-import { getLatestTimestamp, setLatestTimestamp } from './store.js';
+import { getLatestTimestamp, setLastSeenTimestamp } from './store.js';
 import type { VerifiedEvent } from 'nostr-tools';
 
 /**
@@ -29,11 +29,12 @@ export function resolveTimestampParam(value: string | undefined): number | undef
 
 /**
  * Track the latest created_at from a set of query results.
- * Updates the last_seen_timestamp in the store if any event is newer.
+ * Updates last_seen_timestamp to max(created_at) + 1 of the returned events.
+ * Use `clawstr timestamp --rollforward` to promote last_seen to latest when ready.
  */
 export function trackLatestTimestamp(events: VerifiedEvent[]): void {
   if (events.length === 0) return;
   const maxCreatedAt = Math.max(...events.map(e => e.created_at));
-  if (maxCreatedAt) 
-    setLatestTimestamp(maxCreatedAt+1);
+  if (maxCreatedAt)
+    setLastSeenTimestamp(maxCreatedAt + 1);
 }

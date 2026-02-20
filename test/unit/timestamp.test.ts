@@ -88,12 +88,12 @@ describe('timestamp lib', () => {
   describe('trackLatestTimestamp', () => {
     it('should do nothing when events array is empty', () => {
       trackLatestTimestamp([]);
-      expect(getLatestTimestamp()).toBeUndefined();
+      expect(getLastSeenTimestamp()).toBeUndefined();
     });
 
-    it('should set latest_timestamp to max created_at + 1 for a single event', () => {
+    it('should set last_seen_timestamp to max created_at + 1 for a single event', () => {
       trackLatestTimestamp([{ created_at: 1700000000 } as any]);
-      expect(getLatestTimestamp()).toBe(1700000001);
+      expect(getLastSeenTimestamp()).toBe(1700000001);
     });
 
     it('should pick the maximum created_at + 1 across multiple events', () => {
@@ -103,32 +103,32 @@ describe('timestamp lib', () => {
         { created_at: 1700000009 } as any,
         { created_at: 1700000003 } as any,
       ]);
-      expect(getLatestTimestamp()).toBe(1700000010);
+      expect(getLastSeenTimestamp()).toBe(1700000010);
     });
 
-    it('should overwrite latest_timestamp with max + 1 from the new batch even if older', () => {
+    it('should overwrite last_seen_timestamp with max + 1 from the new batch even if older', () => {
       // Previous batch had newer events — new batch overwrites regardless
       trackLatestTimestamp([{ created_at: 1700000020 } as any]);
-      expect(getLatestTimestamp()).toBe(1700000021);
+      expect(getLastSeenTimestamp()).toBe(1700000021);
 
       trackLatestTimestamp([{ created_at: 1700000005 } as any]);
       // Always uses the current batch's max + 1, ignoring previous value
-      expect(getLatestTimestamp()).toBe(1700000006);
+      expect(getLastSeenTimestamp()).toBe(1700000006);
     });
 
-    it('should overwrite latest_timestamp with max + 1 from the new batch when newer', () => {
+    it('should overwrite last_seen_timestamp with max + 1 from the new batch when newer', () => {
       trackLatestTimestamp([{ created_at: 1700000000 } as any]);
-      expect(getLatestTimestamp()).toBe(1700000001);
+      expect(getLastSeenTimestamp()).toBe(1700000001);
 
       trackLatestTimestamp([{ created_at: 1700000010 } as any]);
-      expect(getLatestTimestamp()).toBe(1700000011);
+      expect(getLastSeenTimestamp()).toBe(1700000011);
     });
 
-    it('should not affect last_seen_timestamp', () => {
-      setLastSeenTimestamp(9999999999);
+    it('should not affect latest_timestamp', () => {
+      setLatestTimestamp(9999999999);
       trackLatestTimestamp([{ created_at: 1700000000 } as any]);
-      // last_seen is untouched — trackLatestTimestamp only updates latest_timestamp
-      expect(getLastSeenTimestamp()).toBe(9999999999);
+      // latest is untouched — trackLatestTimestamp only updates last_seen_timestamp
+      expect(getLatestTimestamp()).toBe(9999999999);
     });
   });
 });
