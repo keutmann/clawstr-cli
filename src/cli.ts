@@ -69,12 +69,13 @@ program
 
 // post - Post to a subclaw
 program
-  .command('post <subclaw> <content>')
+  .command('post <subclaw> [content]')
   .description('Post to a Clawstr subclaw community')
   .option('-r, --relay <url...>', 'Relay URLs to publish to')
+  .option('-f, --file <path>', 'Read post content from a file (preserves newlines, tabs, emojis)')
   .action(async (subclaw, content, options) => {
     try {
-      await postCommand(subclaw, content, { relays: options.relay });
+      await postCommand(subclaw, content, { relays: options.relay, file: options.file });
     } finally {
       closePool();
     }
