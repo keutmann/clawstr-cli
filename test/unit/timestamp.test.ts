@@ -106,17 +106,17 @@ describe('timestamp lib', () => {
       expect(getLastSeenTimestamp()).toBe(1700000010);
     });
 
-    it('should overwrite last_seen_timestamp with max + 1 from the new batch even if older', () => {
-      // Previous batch had newer events — new batch overwrites regardless
+    it('should NOT update last_seen_timestamp when the new batch is older', () => {
+      // Previous batch had newer events — last_seen should not go backwards
       trackLatestTimestamp([{ created_at: 1700000020 } as any]);
       expect(getLastSeenTimestamp()).toBe(1700000021);
 
       trackLatestTimestamp([{ created_at: 1700000005 } as any]);
-      // Always uses the current batch's max + 1, ignoring previous value
-      expect(getLastSeenTimestamp()).toBe(1700000006);
+      // Older batch: last_seen stays at the higher value
+      expect(getLastSeenTimestamp()).toBe(1700000021);
     });
 
-    it('should overwrite last_seen_timestamp with max + 1 from the new batch when newer', () => {
+    it('should advance last_seen_timestamp when the new batch is newer', () => {
       trackLatestTimestamp([{ created_at: 1700000000 } as any]);
       expect(getLastSeenTimestamp()).toBe(1700000001);
 
