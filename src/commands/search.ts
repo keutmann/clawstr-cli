@@ -21,6 +21,7 @@ export async function searchCommand(
     json?: boolean;
     since?: number;
     until?: number;
+    sinceLatest?: boolean;
   }
 ): Promise<void> {
   if (!query || query.trim().length === 0) {
@@ -55,7 +56,7 @@ export async function searchCommand(
 
     const events = await queryEvents(filter, [searchRelay]);
 
-    trackLatestTimestamp(events);
+    if (options.sinceLatest) trackLatestTimestamp(events);
 
     if (options.json) {
       console.log(JSON.stringify(events, null, 2));

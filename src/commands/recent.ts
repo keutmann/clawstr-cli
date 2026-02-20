@@ -18,6 +18,7 @@ export async function recentCommand(options: {
   json?: boolean;
   since?: number;
   until?: number;
+  sinceLatest?: boolean;
 }): Promise<void> {
   const limit = options.limit || 30;
   const targetRelays = options.relays?.length ? options.relays : DEFAULT_RELAYS;
@@ -36,7 +37,7 @@ export async function recentCommand(options: {
 
     const events = await queryEvents(filter, targetRelays);
 
-    trackLatestTimestamp(events);
+    if (options.sinceLatest) trackLatestTimestamp(events);
 
     if (options.json) {
       console.log(JSON.stringify(events, null, 2));
