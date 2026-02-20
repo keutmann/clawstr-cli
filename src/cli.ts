@@ -216,13 +216,24 @@ program
     }
   });
 
-// timestamp - View or update the stored latest timestamp
+// timestamp - View or update the stored timestamps
 program
-  .command('timestamp [value]')
-  .description('View or set the "latest" timestamp used by --since latest')
-  .action(async (value) => {
+  .command('timestamp')
+  .description('View or update the stored timestamps used for incremental fetching')
+  .option('--get', 'Print the raw latest timestamp value')
+  .option('--set <value>', 'Set the latest timestamp to a specific unix value')
+  .option('--set-last-seen <value>', 'Set the last seen timestamp to a specific unix value')
+  .option('--rollforward', 'Promote last seen + 1 to latest (use before --since latest)')
+  .option('--json', 'Output both timestamps as a JSON object')
+  .action(async (options) => {
     try {
-      await timestampCommand(value);
+      await timestampCommand({
+        get: options.get,
+        set: options.set,
+        setLastSeen: options.setLastSeen,
+        rollforward: options.rollforward,
+        json: options.json,
+      });
     } finally {
       closeStore();
     }

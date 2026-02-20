@@ -45,7 +45,9 @@ describe('clawstr timestamp e2e', () => {
     if (existsSync(TEST_HOME)) rmSync(TEST_HOME, { recursive: true });
   });
 
-  describe('clawstr timestamp (no args)', () => {
+  // ── No options: human-readable status ──────────────────────────────────────
+
+  describe('clawstr timestamp (no options)', () => {
     it('should show "not set" for both timestamps when nothing stored', async () => {
       const { stdout, code } = await runCli(['timestamp']);
 
@@ -54,47 +56,57 @@ describe('clawstr timestamp e2e', () => {
       expect(stdout).toContain('not set');
     });
 
-    it('should display both timestamps after setting them', async () => {
-      await runCli(['timestamp', '1700000000']);
+    it('should display latest timestamp after --set', async () => {
+      await runCli(['timestamp', '--set', '1700000000']);
       const { stdout, code } = await runCli(['timestamp']);
 
       expect(code).toBe(0);
       expect(stdout).toContain('1700000000');
     });
+
+    it('should display last seen timestamp after --set-last-seen', async () => {
+      await runCli(['timestamp', '--set-last-seen', '1700000001']);
+      const { stdout, code } = await runCli(['timestamp']);
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('1700000001');
+    });
   });
 
-  describe('clawstr timestamp <number>', () => {
+  // ── --set ──────────────────────────────────────────────────────────────────
+
+  describe('clawstr timestamp --set', () => {
     it('should set the latest timestamp to a specific value', async () => {
-      const { stdout, code } = await runCli(['timestamp', '1700000000']);
+      const { stdout, code } = await runCli(['timestamp', '--set', '1700000000']);
 
       expect(code).toBe(0);
       expect(stdout).toContain('1700000000');
     });
 
     it('should overwrite a previously set timestamp', async () => {
-      await runCli(['timestamp', '1700000000']);
-      const { stdout, code } = await runCli(['timestamp', '1710000000']);
+      await runCli(['timestamp', '--set', '1700000000']);
+      const { stdout, code } = await runCli(['timestamp', '--set', '1710000000']);
 
       expect(code).toBe(0);
       expect(stdout).toContain('1710000000');
     });
 
     it('should accept 0 as a valid timestamp', async () => {
-      const { stdout, code } = await runCli(['timestamp', '0']);
+      const { stdout, code } = await runCli(['timestamp', '--set', '0']);
 
       expect(code).toBe(0);
       expect(stdout).toContain('0');
     });
 
     it('should fail with a non-numeric value', async () => {
-      const { stderr, code } = await runCli(['timestamp', 'not-a-number']);
+      const { stderr, code } = await runCli(['timestamp', '--set', 'not-a-number']);
 
       expect(code).not.toBe(0);
       expect(stderr).toContain('Invalid timestamp value');
     });
 
     it('should persist the value across separate CLI invocations', async () => {
-      await runCli(['timestamp', '1700000000']);
+      await runCli(['timestamp', '--set', '1700000000']);
       const { stdout, code } = await runCli(['timestamp']);
 
       expect(code).toBe(0);
@@ -102,46 +114,112 @@ describe('clawstr timestamp e2e', () => {
     });
   });
 
-  describe('clawstr timestamp latest', () => {
-    it('should default to 0 when no last_seen_timestamp has been recorded', async () => {
-      const { stdout, code } = await runCli(['timestamp', 'latest']);
+  // ── --set-last-seen ────────────────────────────────────────────────────────
+
+  describe('clawstr timestamp --set-last-seen', () => {
+    it('should set the last seen timestamp to a specific value', async () => {
+      const { stdout, code } = await runCli(['timestamp', '--set-last-seen', '1700000005']);
 
       expect(code).toBe(0);
-      expect(stdout).toContain('0');
+      expect(stdout).toContain('1700000005');
     });
 
-    it('should promote last_seen + 1 to latest when last_seen is set', async () => {
-      // last_seen_timestamp is auto-tracked after real queries; for e2e purposes we
-      // set it directly via kvSet through the store — but we can only do that via the
-      // CLI surface. The numeric timestamp command sets ONLY latest, not last_seen.
-      // So here we verify: with no last_seen, 'latest' defaults to 0 (succeeds).
-      await runCli(['timestamp', '1700000000']);
-      const { stdout, code } = await runCli(['timestamp', 'latest']);
+    it('should fail with a non-numeric value', async () => {
+      const { stderr, code } = await runCli(['timestamp', '--set-last-seen', 'bad']);
 
-      // last_seen is still undefined (numeric set only sets latest), so defaults to 0
-      expect(code).toBe(0);
-      expect(stdout).toContain('0');
-    });
-  });
-
-  describe('clawstr timestamp reset', () => {
-    it('should reset both timestamps to 0', async () => {
-      await runCli(['timestamp', '1700000000']);
-      const { stdout, code } = await runCli(['timestamp', 'reset']);
-
-      expect(code).toBe(0);
-      expect(stdout).toContain('reset');
+      expect(code).not.toBe(0);
+      expect(stderr).toContain('Invalid timestamp value');
     });
 
-    it('should show 0 values after reset', async () => {
-      await runCli(['timestamp', '1700000000']);
-      await runCli(['timestamp', 'reset']);
+    it('should persist across invocations', async () => {
+      await runCli(['timestamp', '--set-last-seen', '1700000005']);
       const { stdout } = await runCli(['timestamp']);
 
-      // After reset both are 0, which shows as a date near epoch, not "not set"
-      expect(stdout).toContain('0');
+      expect(stdout).toContain('1700000005');
     });
   });
+
+  // ── --rollforward ──────────────────────────────────────────────────────────
+
+  describe('clawstr timestamp --rollforward', () => {
+    it('should default to 0 when no last_seen has been recorded', async () => {
+      const { stdout, code } = await runCli(['timestamp', '--rollforward']);
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('0');
+    });
+
+    it('should set latest to last_seen + 1', async () => {
+      await runCli(['timestamp', '--set-last-seen', '1700000010']);
+      const { stdout, code } = await runCli(['timestamp', '--rollforward']);
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('1700000011');
+    });
+
+    it('should persist the rolled-forward value as latest', async () => {
+      await runCli(['timestamp', '--set-last-seen', '1700000010']);
+      await runCli(['timestamp', '--rollforward']);
+      const { stdout } = await runCli(['timestamp', '--get']);
+
+      expect(stdout.trim()).toBe('1700000011');
+    });
+  });
+
+  // ── --get ──────────────────────────────────────────────────────────────────
+
+  describe('clawstr timestamp --get', () => {
+    it('should print "not set" when no latest timestamp stored', async () => {
+      const { stdout, code } = await runCli(['timestamp', '--get']);
+
+      expect(code).toBe(0);
+      expect(stdout.trim()).toBe('not set');
+    });
+
+    it('should print the raw numeric value after --set', async () => {
+      await runCli(['timestamp', '--set', '1700000000']);
+      const { stdout, code } = await runCli(['timestamp', '--get']);
+
+      expect(code).toBe(0);
+      expect(stdout.trim()).toBe('1700000000');
+    });
+  });
+
+  // ── --json ─────────────────────────────────────────────────────────────────
+
+  describe('clawstr timestamp --json', () => {
+    it('should output valid JSON with null values when nothing stored', async () => {
+      const { stdout, code } = await runCli(['timestamp', '--json']);
+
+      expect(code).toBe(0);
+      const parsed = JSON.parse(stdout);
+      expect(parsed.latest).toBeNull();
+      expect(parsed.lastSeen).toBeNull();
+    });
+
+    it('should include latest after --set', async () => {
+      await runCli(['timestamp', '--set', '1700000000']);
+      const { stdout, code } = await runCli(['timestamp', '--json']);
+
+      expect(code).toBe(0);
+      const parsed = JSON.parse(stdout);
+      expect(parsed.latest).toBe(1700000000);
+      expect(parsed.lastSeen).toBeNull();
+    });
+
+    it('should include both values when both are set', async () => {
+      await runCli(['timestamp', '--set', '1700000000']);
+      await runCli(['timestamp', '--set-last-seen', '1699999999']);
+      const { stdout, code } = await runCli(['timestamp', '--json']);
+
+      expect(code).toBe(0);
+      const parsed = JSON.parse(stdout);
+      expect(parsed.latest).toBe(1700000000);
+      expect(parsed.lastSeen).toBe(1699999999);
+    });
+  });
+
+  // ── --since latest integration ─────────────────────────────────────────────
 
   describe('--since latest integration', () => {
     it('should fail with error when --since latest has no stored value', async () => {
@@ -151,12 +229,18 @@ describe('clawstr timestamp e2e', () => {
       expect(stderr).toContain('No "latest" timestamp stored');
     });
 
+    it('should succeed after --set provides a latest value', async () => {
+      const farFuture = String(Math.floor(Date.now() / 1000) + 9999999);
+      await runCli(['timestamp', '--set', farFuture]);
+      const { code } = await runCli(['recent', '--since', 'latest'], { timeout: 15000 });
+
+      expect(code).toBe(0);
+    });
+
     it('should accept --since with a numeric value without error (may return no results)', async () => {
-      // Use a far-future timestamp so no events are returned, but the CLI itself succeeds
       const farFuture = String(Math.floor(Date.now() / 1000) + 9999999);
       const { code } = await runCli(['recent', '--since', farFuture], { timeout: 15000 });
 
-      // Exit 0 = command ran successfully (even if no results)
       expect(code).toBe(0);
     });
   });
