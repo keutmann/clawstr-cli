@@ -51,7 +51,7 @@ export async function timestampCommand(value?: string): Promise<void> {
   if (value === 'reset') {
     setLatestTimestamp(0);
     setLastSeenTimestamp(0);
-    console.log('Latest timestamp reset to 0');
+    console.log('Latest and last seen timestamps reset to 0');
     return;
   }
 

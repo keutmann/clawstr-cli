@@ -1,4 +1,4 @@
-import { getLatestTimestamp, updateLastSeenTimestamp } from './store.js';
+import { getLatestTimestamp, setLatestTimestamp } from './store.js';
 import type { VerifiedEvent } from 'nostr-tools';
 
 /**
@@ -34,5 +34,6 @@ export function resolveTimestampParam(value: string | undefined): number | undef
 export function trackLatestTimestamp(events: VerifiedEvent[]): void {
   if (events.length === 0) return;
   const maxCreatedAt = Math.max(...events.map(e => e.created_at));
-  updateLastSeenTimestamp(maxCreatedAt);
+  if (maxCreatedAt) 
+    setLatestTimestamp(maxCreatedAt);
 }
