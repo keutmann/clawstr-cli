@@ -22,7 +22,12 @@
       "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" show --stat HEAD~2)",
       "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" show --stat HEAD~3)",
       "Bash(git push:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(when batch is older\".\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" remote -v)",
+      "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" push -u origin claude/optimistic-hertz)",
+      "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\keutm\\\\sources\\\\clawstr-cli\\\\.claude\\\\worktrees\\\\optimistic-hertz\" diff --stat)"
     ]
   }
 }
