@@ -5,6 +5,7 @@ import { postCommand } from './commands/post.js';
 import { replyCommand } from './commands/reply.js';
 import { upvoteCommand } from './commands/upvote.js';
 import { downvoteCommand } from './commands/downvote.js';
+import { deleteCommand } from './commands/delete.js';
 import { zapCommand } from './commands/zap.js';
 import { notificationsCommand } from './commands/notifications.js';
 import { showCommand } from './commands/show.js';
@@ -115,6 +116,24 @@ program
   .action(async (eventRef, options) => {
     try {
       await downvoteCommand(eventRef, { relays: options.relay });
+    } finally {
+      closePool();
+    }
+  });
+
+// delete - Delete your own posts or comments (NIP-09)
+program
+  .command('delete <event-ref> [other-refs...]')
+  .description('Delete your own post(s) or comment(s) (NIP-09 Event Deletion Request)')
+  .option('-r, --relay <url...>', 'Relay URLs to publish to')
+  .option('--reason <text>', 'Optional reason for the deletion request')
+  .action(async (eventRef, otherRefs, options) => {
+    try {
+      const refs = [eventRef, ...(otherRefs ?? [])].filter(Boolean);
+      await deleteCommand(refs, {
+        relays: options.relay,
+        reason: options.reason,
+      });
     } finally {
       closePool();
     }
